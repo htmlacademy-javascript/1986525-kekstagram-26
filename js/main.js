@@ -1,3 +1,7 @@
+const DESCRIPTION = ['описание 1', 'описание 2'];
+
+let idPhoto = [1, 2];
+
 // Источник: https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/Math/random
 const getRandomIntInclusive = (min, max) => {
   let random;
@@ -19,5 +23,20 @@ const verifyStrLength = (str, maxLength) => {
   return verify;
 };
 
-getRandomIntInclusive(0, 20);
-verifyStrLength('Какой-то текст...', 50);
+const createPhotos = () => (
+  {
+    id: idPhoto[0],
+    url: `photos/${  idPhoto[0]  }.jpg`,
+    description: '',
+    likes: '',
+    comments:
+      {
+        id: 135,
+        avatar: 'img/avatar-6.svg',
+        message: 'В целом всё неплохо. Но не всё.',
+        name: 'Артём',
+      }
+  }
+);
+
+console.log(createPhotos());
