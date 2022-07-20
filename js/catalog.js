@@ -1,4 +1,4 @@
-import {createAlbum} from '/js/data.js';
+import {createAlbum} from './data.js';
 
 const similarListPictures = document.querySelector('.pictures');
 const similarPictureTemplate = document.querySelector('#picture')

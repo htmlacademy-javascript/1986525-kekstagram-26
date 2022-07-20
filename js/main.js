@@ -1,2 +1,2 @@
-import '/js/form.js';
-import '/js/catalog.js';
+import './form.js';
+import './catalog.js';

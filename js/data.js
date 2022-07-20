@@ -1,4 +1,4 @@
-import {getRandomIntInclusive, getRandomArrayElement} from '/js/util.js';
+import {getRandomIntInclusive, getRandomArrayElement} from './util.js';
 
 const PHOTO_AMOUNT_MAX = 25;
 const LIKES_AMOUNT = [15, 200];
