@@ -1,4 +1,4 @@
-import {getRandomIntInclusive, getRandomArrayElement} from '/js/util.js';
+import {getRandomIntInclusive, getRandomArrayElement} from './util.js';
 
 const PHOTO_AMOUNT_MAX = 25;
 const LIKES_AMOUNT = [15, 200];
@@ -56,9 +56,7 @@ const createPhoto = () => (
     url: `photos/${  idPhoto[idPhoto.length - 1]  }.jpg`,
     description: getRandomArrayElement(DESCRIPTION),
     likes: getRandomIntInclusive(LIKES_AMOUNT[0], LIKES_AMOUNT[1]),
-    comments: [
-      Array.from({length: getRandomIntInclusive(1, COMMENTS_AMOUNT_MAX)}, createComments)
-    ]
+    comments: Array.from({length: getRandomIntInclusive(1, COMMENTS_AMOUNT_MAX)}, createComments)
   }
 );
 
