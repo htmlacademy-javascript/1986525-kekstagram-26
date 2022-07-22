@@ -1,3 +1,5 @@
+import {managePictureModal} from './picture-modal.js';
+
 const makeBigPicture = (containerPicture, picture) => {
   const bigPictureImg = containerPicture.querySelector('.big-picture__img').querySelector('img');
 
@@ -23,22 +25,7 @@ const makeBigPicture = (containerPicture, picture) => {
   containerPicture.querySelector('.comments-count').textContent = picture.comments.length;
   containerPicture.querySelector('.social__caption').textContent = picture.description;
 
-  containerPicture.classList.remove('hidden');
-  containerPicture.querySelector('.social__comment-count').classList.add('hidden');
-  containerPicture.querySelector('.comments-loader').classList.add('hidden');
-  document.body.classList.add('modal-open');
-
-  containerPicture.querySelector('.big-picture__cancel').addEventListener('click', () => {
-    containerPicture.classList.add('hidden');
-    document.body.classList.remove('modal-open');
-  });
-
-  document.addEventListener('keydown', (evt) => {
-    if (evt.keyCode === 27) {
-      containerPicture.classList.add('hidden');
-      document.body.classList.remove('modal-open');
-    }
-  });
+  managePictureModal(containerPicture);
 };
 
 export {makeBigPicture};
