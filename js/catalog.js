@@ -21,4 +21,3 @@ similarPictures.forEach((picture) => {
 });
 
 similarListPictures.appendChild(similarListFragment);
-

@@ -13,6 +13,7 @@ const makeBigPicture = (containerPicture, picture) => {
 
   picture.comments.forEach(({avatar, message, name}) => {
     const socialComment = socialCommentTemplate.cloneNode(true);
+    socialComment.classList.add('hidden');
     socialComment.querySelector('.social__picture').src = avatar;
     socialComment.querySelector('.social__picture').alt = name;
     socialComment.querySelector('.social__text').textContent = message;
@@ -20,6 +21,28 @@ const makeBigPicture = (containerPicture, picture) => {
   });
 
   socialComments.append(similarCommentsFragment);
+
+  let commentsOpenLength = 5;
+  let commentsOpenFull = false;
+
+  const makeSocialLoader = () => {
+    if (!commentsOpenFull){
+      if (picture.comments.length < commentsOpenLength) {
+        commentsOpenLength = picture.comments.length;
+        commentsOpenFull = true;
+      }
+
+      for (let i = 0; i < commentsOpenLength; i++) {
+        socialComments.children[i].classList.remove('hidden');
+      }
+      containerPicture.querySelector('.comments-count-is').textContent = commentsOpenLength;
+      commentsOpenLength += 5;
+    }
+  };
+
+  makeSocialLoader();
+  document.querySelector('.comments-loader').addEventListener('click', makeSocialLoader);
+
   bigPictureImg.src = picture.url;
   containerPicture.querySelector('.likes-count').textContent = picture.likes;
   containerPicture.querySelector('.comments-count').textContent = picture.comments.length;
