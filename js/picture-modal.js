@@ -9,8 +9,6 @@ const managePictureModal = (containerPicture) => {
   };
 
   containerPicture.classList.remove('hidden');
-  containerPicture.querySelector('.social__comment-count').classList.add('hidden');
-  containerPicture.querySelector('.comments-loader').classList.add('hidden');
   document.body.classList.add('modal-open');
 
   containerPicture.querySelector('.big-picture__cancel').addEventListener('click', () => {
