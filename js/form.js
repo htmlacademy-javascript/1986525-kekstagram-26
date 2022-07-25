@@ -1,4 +1,157 @@
 const uploadSelectImg = document.querySelector('#upload-select-image');
+const imgUploadPreview = document.querySelector('.img-upload__preview').children[0];
+const effectLevelSlider = document.querySelector('.effect-level__slider');
+const scaleControlSmaller = document.querySelector('.scale__control--smaller');
+const scaleControlBigger = document.querySelector('.scale__control--bigger');
+const scaleControlValue = document.querySelector('.scale__control--value');
+
+noUiSlider.create(effectLevelSlider, {
+  range: {
+    min: 0,
+    max: 100,
+  },
+  start: 80,
+  connect: 'lower',
+  format: {
+    to: function (value) {
+      if (Number.isInteger(value)) {
+        return value.toFixed(0);
+      }
+      return value.toFixed(1);
+    },
+    from: function (value) {
+      return parseFloat(value);
+    },
+  },
+});
+
+let controlValue = 100;
+const makeScaleControlOption = () => {
+  controlValue = 100;
+  scaleControlValue.value = `${controlValue}%`;
+  imgUploadPreview.style.cssText += `transform: scale(${controlValue / 100})`;
+};
+
+makeScaleControlOption();
+
+const makeScaleControlSmaller = () => {
+  if (controlValue > 25) {
+    controlValue -= 25;
+    scaleControlValue.value = `${controlValue}%`;
+    imgUploadPreview.style.cssText += `transform: scale(${controlValue / 100})`;
+  }
+};
+
+const makeScaleControlBigger = () => {
+  if (controlValue < 100) {
+    controlValue += 25;
+    scaleControlValue.value = `${controlValue}%`;
+    imgUploadPreview.style.cssText += `transform: scale(${controlValue / 100});`;
+  }
+};
+
+const makeEffects = () => {
+  const effectsRadio = document.querySelectorAll('.effects__radio');
+  const effectLevel = document.querySelector('.effect-level');
+  const effectLevelValue = document.querySelector('.effect-level__value');
+
+  effectLevelValue.value = '';
+  effectLevel.classList.add('hidden');
+
+  effectsRadio[0].checked = true;
+  imgUploadPreview.removeAttribute('class');
+  imgUploadPreview.style.removeProperty('filter');
+
+  for (let i = 0; i < effectsRadio.length; i++) {
+    const makeEffectRadio = () => {
+      const effectRadio = effectsRadio[i].value;
+
+      if (effectRadio === 'chrome') {
+        effectLevelSlider.noUiSlider.updateOptions({
+          range: {
+            min: 0,
+            max: 1,
+          },
+          start: 1,
+          step: 0.1,
+        });
+        effectLevelSlider.noUiSlider.on('update', () => {
+          effectLevelValue.value = effectLevelSlider.noUiSlider.get();
+          imgUploadPreview.style.cssText += `filter: grayscale(${effectLevelSlider.noUiSlider.get()});`;
+        });
+      }
+      if (effectRadio === 'sepia') {
+        effectLevelSlider.noUiSlider.updateOptions({
+          range: {
+            min: 0,
+            max: 1,
+          },
+          start: 1,
+          step: 0.1,
+        });
+        effectLevelSlider.noUiSlider.on('update', () => {
+          effectLevelValue.value = effectLevelSlider.noUiSlider.get();
+          imgUploadPreview.style.cssText += `filter: sepia(${effectLevelSlider.noUiSlider.get()});`;
+        });
+      }
+      if (effectRadio === 'marvin') {
+        effectLevelSlider.noUiSlider.updateOptions({
+          range: {
+            min: 0,
+            max: 100,
+          },
+          start: 100,
+          step: 1,
+        });
+        effectLevelSlider.noUiSlider.on('update', () => {
+          effectLevelValue.value = effectLevelSlider.noUiSlider.get();
+          imgUploadPreview.style.cssText += `filter: invert(${effectLevelSlider.noUiSlider.get()}%);`;
+        });
+      }
+      if (effectRadio === 'phobos') {
+        effectLevelSlider.noUiSlider.updateOptions({
+          range: {
+            min: 0,
+            max: 3,
+          },
+          start: 3,
+          step: 0.1,
+        });
+        effectLevelSlider.noUiSlider.on('update', () => {
+          effectLevelValue.value = effectLevelSlider.noUiSlider.get();
+          imgUploadPreview.style.cssText += `filter: blur(${effectLevelSlider.noUiSlider.get()}px);`;
+        });
+      }
+      if (effectRadio === 'heat') {
+        effectLevelSlider.noUiSlider.updateOptions({
+          range: {
+            min: 1,
+            max: 3,
+          },
+          start: 3,
+          step: 0.1,
+        });
+        effectLevelSlider.noUiSlider.on('update', () => {
+          effectLevelValue.value = effectLevelSlider.noUiSlider.get();
+          imgUploadPreview.style.cssText += `filter: brightness(${effectLevelSlider.noUiSlider.get()});`;
+        });
+      }
+
+      if (effectRadio !== 'none') {
+        effectLevel.classList.remove('hidden');
+        imgUploadPreview.classList.add(`effects__preview--${effectRadio}`);
+      } else {
+        effectLevelValue.value = '';
+        imgUploadPreview.removeAttribute('class');
+        imgUploadPreview.style.removeProperty('filter');
+        effectLevelValue.value = '';
+        effectLevel.classList.add('hidden');
+      }
+    };
+
+    effectsRadio[i].addEventListener('input', makeEffectRadio);
+  }
+};
 
 const pristine = new Pristine(uploadSelectImg, {
   classTo: 'img-upload__field-wrapper',
@@ -59,6 +212,9 @@ const onPopupEscKeydown = (evt) => {
     imgUploadOverlay.classList.add('hidden');
     document.body.classList.remove('modal-open');
 
+    scaleControlSmaller.removeEventListener('click', makeScaleControlSmaller);
+    scaleControlBigger.removeEventListener('click', makeScaleControlBigger);
+
     uploadSelectImg.reset();
     pristine.reset();
     document.removeEventListener('keydown', onPopupEscKeydown);
@@ -68,10 +224,18 @@ const onPopupEscKeydown = (evt) => {
 imgUploadInput.addEventListener('input', () => {
   imgUploadOverlay.classList.remove('hidden');
   document.body.classList.add('modal-open');
+  makeEffects();
+
+  scaleControlSmaller.addEventListener('click', makeScaleControlSmaller);
+  scaleControlBigger.addEventListener('click', makeScaleControlBigger);
+  makeScaleControlOption();
 
   uploadCancel.addEventListener('click', () => {
     imgUploadOverlay.classList.add('hidden');
     document.body.classList.remove('modal-open');
+
+    scaleControlSmaller.removeEventListener('click', makeScaleControlSmaller);
+    scaleControlBigger.removeEventListener('click', makeScaleControlBigger);
 
     pristine.reset();
     document.removeEventListener('keydown', onPopupEscKeydown);
