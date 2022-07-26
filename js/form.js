@@ -244,6 +244,7 @@ const makeSuccessMessage = () => {
   const onMessageEscKeydown = (evt) => {
     if (evt.keyCode === 27) {
       successElement.remove();
+      document.body.classList.remove('modal-open');
       document.removeEventListener('keydown', onMessageEscKeydown);
     }
   };
@@ -259,6 +260,7 @@ const makeSuccessMessage = () => {
 
   successButton.addEventListener('click', () => {
     successElement.remove();
+    document.body.classList.remove('modal-open');
     document.removeEventListener('keydown', onMessageEscKeydown);
   });
 
@@ -266,6 +268,7 @@ const makeSuccessMessage = () => {
     const targed = evt.path[0];
     if (targed.tagName === 'SECTION') {
       successElement.remove();
+      document.body.classList.remove('modal-open');
       document.removeEventListener('keydown', onMessageEscKeydown);
     }
   });
