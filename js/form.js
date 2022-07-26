@@ -359,9 +359,9 @@ imgUploadInput.addEventListener('input', () => {
         },
         new FormData(evt.target),
       );
-    }
-    if (!error) {
-      uploadSelectImg.removeEventListener('submit', makeUploadSelect);
+      if (!error) {
+        uploadSelectImg.removeEventListener('submit', makeUploadSelect);
+      }
     }
   };
   uploadSelectImg.addEventListener('submit', makeUploadSelect);
