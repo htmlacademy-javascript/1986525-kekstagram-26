@@ -319,6 +319,26 @@ const makeErrorMessage = (errorText) => {
   document.addEventListener('keydown', onMessageEscKeydown);
 };
 
+const makeUploadSelect = (evt) => {
+  evt.preventDefault();
+  const isValid = pristine.validate();
+  if (isValid) {
+    blockSubmitButton();
+    sendData(
+      () => {
+        makeSuccessMessage();
+        unblockSubmitButton();
+        uploadSelectImg.removeEventListener('submit', makeUploadSelect);
+      },
+      () => {
+        makeErrorMessage('Не удалось отправить форму');
+        unblockSubmitButton();
+      },
+      new FormData(evt.target),
+    );
+  }
+};
+
 imgUploadInput.addEventListener('input', () => {
   imgUploadOverlay.classList.remove('hidden');
   document.body.classList.add('modal-open');
@@ -336,29 +356,11 @@ imgUploadInput.addEventListener('input', () => {
     scaleControlBigger.removeEventListener('click', makeScaleControlBigger);
 
     pristine.reset();
+    uploadSelectImg.removeEventListener('submit', makeUploadSelect);
     document.removeEventListener('keydown', onPopupEscKeydown);
   });
   document.addEventListener('keydown', onPopupEscKeydown);
 
-  const makeUploadSelect = (evt) => {
-    evt.preventDefault();
-    const isValid = pristine.validate();
-    if (isValid) {
-      blockSubmitButton();
-      sendData(
-        () => {
-          makeSuccessMessage();
-          unblockSubmitButton();
-          uploadSelectImg.removeEventListener('submit', makeUploadSelect);
-        },
-        () => {
-          makeErrorMessage('Не удалось отправить форму');
-          unblockSubmitButton();
-        },
-        new FormData(evt.target),
-      );
-    }
-  };
   uploadSelectImg.addEventListener('submit', makeUploadSelect);
 });
 
