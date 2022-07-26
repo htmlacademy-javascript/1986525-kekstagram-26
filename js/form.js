@@ -342,24 +342,28 @@ imgUploadInput.addEventListener('input', () => {
 
   const makeUploadSelect = (evt) => {
     evt.preventDefault();
+    let error = false;
     const isValid = pristine.validate();
     if (isValid) {
       blockSubmitButton();
       sendData(
         () => {
+          error = false;
           makeSuccessMessage();
           unblockSubmitButton();
         },
         () => {
+          error = true;
           makeErrorMessage('Не удалось отправить форму');
           unblockSubmitButton();
         },
         new FormData(evt.target),
       );
     }
-    uploadSelectImg.removeEventListener('submit', makeUploadSelect);
+    if (!error) {
+      uploadSelectImg.removeEventListener('submit', makeUploadSelect);
+    }
   };
-
   uploadSelectImg.addEventListener('submit', makeUploadSelect);
 });
 
