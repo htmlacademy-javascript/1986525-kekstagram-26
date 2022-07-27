@@ -11,8 +11,6 @@ const getRandomIntInclusive = (min, max) => {
   return random;
 };
 
-const getRandomArrayElement = (elements) => elements[getRandomIntInclusive(0, elements.length - 1)];
-
 const debounce = (callback, timeoutDelay) => {
   let timeoutId;
   return (...rest) => {
@@ -21,4 +19,4 @@ const debounce = (callback, timeoutDelay) => {
   };
 };
 
-export {getRandomIntInclusive, getRandomArrayElement, debounce};
+export {getRandomIntInclusive, debounce};

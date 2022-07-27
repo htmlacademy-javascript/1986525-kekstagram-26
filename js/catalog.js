@@ -3,6 +3,9 @@ import {makeBigPicture} from './picture.js';
 import {makeErrorMessage} from './form.js';
 import {getRandomIntInclusive, debounce} from './util.js';
 
+const RERENDER_DELAY = 500;
+const FILTER_RANDOM_LENGTH = 10;
+
 const similarListPictures = document.querySelector('.pictures');
 const similarPictureTemplate = document.querySelector('#picture').content.querySelector('.picture');
 const bigPicture = document.querySelector('.big-picture');
@@ -10,9 +13,6 @@ const imgFilters = document.querySelector('.img-filters');
 const buttonFilterRandom = imgFilters.querySelector('#filter-random');
 const buttonFilterComments = imgFilters.querySelector('#filter-discussed');
 const buttonFilterDefault = imgFilters.querySelector('#filter-default');
-
-const RERENDER_DELAY = 500;
-const FILTER_RANDOM_LENGTH = 10;
 
 let filterRandomOn = false;
 let filterCommentsOn = false;
