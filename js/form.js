@@ -1,5 +1,11 @@
 import {sendData} from './api.js';
 
+const CONTROL_VALUE_MAX = 100;
+const CONTROL_VALUE_MIN = 25;
+const KEY_CODE_ESCAPE = 27;
+
+const re = /#[A-Za-zА-Яа-яЁё0-9]{1,19}$/i;
+
 const uploadSelectImg = document.querySelector('#upload-select-image');
 const imgUploadPreview = document.querySelector('.img-upload__preview').children[0];
 const effectLevelSlider = document.querySelector('.effect-level__slider');
@@ -12,10 +18,6 @@ const imgUploadOverlay = uploadSelectImg.querySelector('.img-upload__overlay');
 const uploadCancel = uploadSelectImg.querySelector('#upload-cancel');
 const textDecription = uploadSelectImg.querySelector('.text__description');
 const textHashtags = uploadSelectImg.querySelector('.text__hashtags');
-const re = /#[A-Za-zА-Яа-яЁё0-9]{1,19}$/i;
-
-const CONTROL_VALUE_MAX = 100;
-const CONTROL_VALUE_MIN = 25;
 
 noUiSlider.create(effectLevelSlider, {
   range: {
@@ -213,7 +215,7 @@ pristine.addValidator(textHashtags, hashtagFooMax, 'Максимум 5 хешт�
 pristine.addValidator(textHashtags, hashtagFooRep, 'Хештеги повторяются');
 
 const onPopupEscKeydown = (evt) => {
-  if (evt.keyCode === 27 && textDecription !== document.activeElement && textHashtags !== document.activeElement) {
+  if (evt.keyCode === KEY_CODE_ESCAPE && textDecription !== document.activeElement && textHashtags !== document.activeElement) {
     imgUploadOverlay.classList.add('hidden');
     document.body.classList.remove('modal-open');
 
@@ -242,7 +244,7 @@ const makeSuccessMessage = () => {
   const successButton = successElement.querySelector('.success__button');
 
   const onMessageEscKeydown = (evt) => {
-    if (evt.keyCode === 27) {
+    if (evt.keyCode === KEY_CODE_ESCAPE) {
       successElement.remove();
       document.body.classList.remove('modal-open');
       document.removeEventListener('keydown', onMessageEscKeydown);
@@ -286,9 +288,12 @@ const makeErrorMessage = (errorText) => {
   document.body.classList.add('modal-open');
 
   const onMessageEscKeydown = (evt) => {
-    if (evt.keyCode === 27) {
+    if (evt.keyCode === KEY_CODE_ESCAPE) {
       errorElement.remove();
 
+      if (errorText === 'Ошибка запроса к серверу') {
+        document.body.classList.remove('modal-open');
+      }
       document.querySelector('.img-upload__overlay').classList.remove('visually-hidden');
       document.removeEventListener('keydown', onMessageEscKeydown);
     }
@@ -306,6 +311,9 @@ const makeErrorMessage = (errorText) => {
 
   errorButton.addEventListener('click', () => {
     errorElement.remove();
+    if (errorText === 'Ошибка запроса к серверу') {
+      document.body.classList.remove('modal-open');
+    }
     document.querySelector('.img-upload__overlay').classList.remove('visually-hidden');
     document.removeEventListener('keydown', onMessageEscKeydown);
   });
@@ -313,6 +321,9 @@ const makeErrorMessage = (errorText) => {
   errorElement.addEventListener('click', (evt) => {
     const targed = evt.path[0];
     if (targed.tagName === 'SECTION') {
+      if (errorText === 'Ошибка запроса к серверу') {
+        document.body.classList.remove('modal-open');
+      }
       errorElement.remove();
       document.querySelector('.img-upload__overlay').classList.remove('visually-hidden');
       document.removeEventListener('keydown', onMessageEscKeydown);
