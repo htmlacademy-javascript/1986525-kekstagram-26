@@ -353,10 +353,28 @@ const makeUploadSelect = (evt) => {
   }
 };
 
+const imgUploadChooser = () => {
+  const FILE_TYPES = ['jpg', 'jpeg', 'png'];
+  const effectPreview = document.querySelectorAll('.effects__preview');
+
+  const file = imgUploadInput.files[0];
+  const fileName = file.name.toLowerCase();
+
+  const matches = FILE_TYPES.some((it) => fileName.endsWith(it));
+
+  if (matches) {
+    imgUploadPreview.src = URL.createObjectURL(file);
+    effectPreview.forEach((preview) => {
+      preview.style = `background-image: url(${URL.createObjectURL(file)})`;
+    });
+  }
+};
+
 imgUploadInput.addEventListener('input', () => {
   imgUploadOverlay.classList.remove('hidden');
   document.body.classList.add('modal-open');
   makeEffects();
+  imgUploadChooser();
 
   scaleControlSmaller.addEventListener('click', makeScaleControlSmaller);
   scaleControlBigger.addEventListener('click', makeScaleControlBigger);
