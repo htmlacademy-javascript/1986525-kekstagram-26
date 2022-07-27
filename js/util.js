@@ -13,12 +13,12 @@ const getRandomIntInclusive = (min, max) => {
 
 const getRandomArrayElement = (elements) => elements[getRandomIntInclusive(0, elements.length - 1)];
 
-const verifyStrLength = (str, maxLength) => {
-  let verify = false;
-  if (str.length <= maxLength) {
-    verify = true;
-  }
-  return verify;
+const debounce = (callback, timeoutDelay) => {
+  let timeoutId;
+  return (...rest) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => callback.apply(this, rest), timeoutDelay);
+  };
 };
 
-export {getRandomIntInclusive, getRandomArrayElement, verifyStrLength};
+export {getRandomIntInclusive, getRandomArrayElement, debounce};

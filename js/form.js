@@ -289,6 +289,9 @@ const makeErrorMessage = (errorText) => {
     if (evt.keyCode === 27) {
       errorElement.remove();
 
+      if (errorText === 'Ошибка запроса к серверу') {
+        document.body.classList.remove('modal-open');
+      }
       document.querySelector('.img-upload__overlay').classList.remove('visually-hidden');
       document.removeEventListener('keydown', onMessageEscKeydown);
     }
@@ -306,6 +309,9 @@ const makeErrorMessage = (errorText) => {
 
   errorButton.addEventListener('click', () => {
     errorElement.remove();
+    if (errorText === 'Ошибка запроса к серверу') {
+      document.body.classList.remove('modal-open');
+    }
     document.querySelector('.img-upload__overlay').classList.remove('visually-hidden');
     document.removeEventListener('keydown', onMessageEscKeydown);
   });
@@ -313,6 +319,9 @@ const makeErrorMessage = (errorText) => {
   errorElement.addEventListener('click', (evt) => {
     const targed = evt.path[0];
     if (targed.tagName === 'SECTION') {
+      if (errorText === 'Ошибка запроса к серверу') {
+        document.body.classList.remove('modal-open');
+      }
       errorElement.remove();
       document.querySelector('.img-upload__overlay').classList.remove('visually-hidden');
       document.removeEventListener('keydown', onMessageEscKeydown);
