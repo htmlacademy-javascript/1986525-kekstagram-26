@@ -22,21 +22,25 @@ const makeBigPicture = (containerPicture, picture) => {
 
   socialComments.append(similarCommentsFragment);
 
-  let commentsOpenLength = 5;
+  const COMMENTS_AMOUNT = 5;
+
+  let commentsOpenLength = COMMENTS_AMOUNT;
   let commentsOpenFull = false;
 
   const makeSocialLoader = () => {
     if (!commentsOpenFull){
+      document.querySelector('.comments-loader').classList.remove('hidden');
       if (picture.comments.length < commentsOpenLength) {
         commentsOpenLength = picture.comments.length;
         commentsOpenFull = true;
+        document.querySelector('.comments-loader').classList.add('hidden');
       }
 
       for (let i = 0; i < commentsOpenLength; i++) {
         socialComments.children[i].classList.remove('hidden');
       }
       containerPicture.querySelector('.comments-count-is').textContent = commentsOpenLength;
-      commentsOpenLength += 5;
+      commentsOpenLength += COMMENTS_AMOUNT;
     }
   };
 
