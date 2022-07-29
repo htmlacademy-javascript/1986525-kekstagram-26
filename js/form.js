@@ -47,9 +47,11 @@ let controlValue = CONTROL_VALUE_MAX;
 const makeScaleControl = (evt) => {
   if (evt.target === scaleControlSmaller && controlValue > CONTROL_VALUE_MIN) {
     controlValue -= CONTROL_VALUE_MIN;
-  } else if (evt.target === scaleControlBigger && controlValue < CONTROL_VALUE_MAX) {
+  }
+  if (evt.target === scaleControlBigger && controlValue < CONTROL_VALUE_MAX) {
     controlValue += CONTROL_VALUE_MIN;
-  } else if (evt === scaleControlValue) {
+  }
+  if (evt === scaleControlValue) {
     controlValue = CONTROL_VALUE_MAX;
   }
   scaleControlValue.value = `${controlValue}%`;
