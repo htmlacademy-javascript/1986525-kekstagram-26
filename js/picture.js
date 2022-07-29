@@ -1,5 +1,7 @@
 import {managePictureModal} from './picture-modal.js';
 
+const COMMENTS_AMOUNT = 5;
+
 const makeBigPicture = (containerPicture, picture) => {
   const bigPictureImg = containerPicture.querySelector('.big-picture__img').querySelector('img');
 
@@ -22,15 +24,13 @@ const makeBigPicture = (containerPicture, picture) => {
 
   socialComments.append(similarCommentsFragment);
 
-  const COMMENTS_AMOUNT = 5;
-
   let commentsOpenLength = COMMENTS_AMOUNT;
   let commentsOpenFull = false;
 
   const makeSocialLoader = () => {
     if (!commentsOpenFull){
       document.querySelector('.comments-loader').classList.remove('hidden');
-      if (picture.comments.length < commentsOpenLength) {
+      if (picture.comments.length <= commentsOpenLength) {
         commentsOpenLength = picture.comments.length;
         commentsOpenFull = true;
         document.querySelector('.comments-loader').classList.add('hidden');

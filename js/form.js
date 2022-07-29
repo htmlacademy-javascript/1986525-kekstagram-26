@@ -1,18 +1,21 @@
 import {sendData} from './api.js';
+import {isEscapeKey, getUpercaseDataArray} from './util.js';
 
 const CONTROL_VALUE_MAX = 100;
 const CONTROL_VALUE_MIN = 25;
-const KEY_CODE_ESCAPE = 27;
+const FILE_TYPES = ['jpg', 'jpeg', 'png'];
+const HASGHTAG_AMOUNT_MAX = 5;
 
 const re = /#[A-Za-zА-Яа-яЁё0-9]{1,19}$/i;
 
 const uploadSelectImg = document.querySelector('#upload-select-image');
-const imgUploadPreview = document.querySelector('.img-upload__preview').children[0];
-const effectLevelSlider = document.querySelector('.effect-level__slider');
-const scaleControlSmaller = document.querySelector('.scale__control--smaller');
-const scaleControlBigger = document.querySelector('.scale__control--bigger');
-const scaleControlValue = document.querySelector('.scale__control--value');
-const submitButton = document.querySelector('.img-upload__submit');
+const imgUploadPreview = uploadSelectImg.querySelector('.img-upload__preview').children[0];
+const effectLevelSlider = uploadSelectImg.querySelector('.effect-level__slider');
+const scaleControl = uploadSelectImg.querySelector('.img-upload__scale');
+const scaleControlSmaller = uploadSelectImg.querySelector('.scale__control--smaller');
+const scaleControlBigger = uploadSelectImg.querySelector('.scale__control--bigger');
+const scaleControlValue = uploadSelectImg.querySelector('.scale__control--value');
+const submitButton = uploadSelectImg.querySelector('.img-upload__submit');
 const imgUploadInput = uploadSelectImg.querySelector('#upload-file');
 const imgUploadOverlay = uploadSelectImg.querySelector('.img-upload__overlay');
 const uploadCancel = uploadSelectImg.querySelector('#upload-cancel');
@@ -40,131 +43,121 @@ noUiSlider.create(effectLevelSlider, {
 });
 
 let controlValue = CONTROL_VALUE_MAX;
-const makeScaleControlOption = () => {
-  controlValue = CONTROL_VALUE_MAX;
+
+const makeScaleControl = (evt) => {
+  if (evt.target === scaleControlSmaller && controlValue > CONTROL_VALUE_MIN) {
+    controlValue -= CONTROL_VALUE_MIN;
+  }
+  if (evt.target === scaleControlBigger && controlValue < CONTROL_VALUE_MAX) {
+    controlValue += CONTROL_VALUE_MIN;
+  }
+  if (evt === scaleControlValue) {
+    controlValue = CONTROL_VALUE_MAX;
+  }
   scaleControlValue.value = `${controlValue}%`;
   imgUploadPreview.style.cssText += `transform: scale(${controlValue / 100})`;
 };
 
-makeScaleControlOption();
-
-const makeScaleControlSmaller = () => {
-  if (controlValue > CONTROL_VALUE_MIN) {
-    controlValue -= CONTROL_VALUE_MIN;
-    scaleControlValue.value = `${controlValue}%`;
-    imgUploadPreview.style.cssText += `transform: scale(${controlValue / 100})`;
-  }
-};
-
-const makeScaleControlBigger = () => {
-  if (controlValue < CONTROL_VALUE_MAX) {
-    controlValue += CONTROL_VALUE_MIN;
-    scaleControlValue.value = `${controlValue}%`;
-    imgUploadPreview.style.cssText += `transform: scale(${controlValue / 100});`;
-  }
-};
+makeScaleControl(scaleControlValue);
 
 const makeEffects = () => {
-  const effectsRadio = document.querySelectorAll('.effects__radio');
-  const effectLevel = document.querySelector('.effect-level');
-  const effectLevelValue = document.querySelector('.effect-level__value');
+  const effectsRadioFirst = uploadSelectImg.querySelector('.effects__radio');
+  const effectsRadio = uploadSelectImg.querySelector('.img-upload__effects');
+  const effectLevel = uploadSelectImg.querySelector('.effect-level');
+  const effectLevelValue = uploadSelectImg.querySelector('.effect-level__value');
 
   effectLevelValue.value = '';
   effectLevel.classList.add('hidden');
 
-  effectsRadio[0].checked = true;
+  effectsRadioFirst.checked = true;
   imgUploadPreview.removeAttribute('class');
   imgUploadPreview.style.removeProperty('filter');
 
-  for (let i = 0; i < effectsRadio.length; i++) {
-    const makeEffectRadio = () => {
-      const effectRadio = effectsRadio[i].value;
+  const makeEffectRadio = (evt) => {
+    if (evt.target.value === 'chrome') {
+      effectLevelSlider.noUiSlider.updateOptions({
+        range: {
+          min: 0,
+          max: 1,
+        },
+        start: 1,
+        step: 0.1,
+      });
+      effectLevelSlider.noUiSlider.on('update', () => {
+        effectLevelValue.value = effectLevelSlider.noUiSlider.get();
+        imgUploadPreview.style.cssText += `filter: grayscale(${effectLevelSlider.noUiSlider.get()});`;
+      });
+    }
+    if (evt.target.value === 'sepia') {
+      effectLevelSlider.noUiSlider.updateOptions({
+        range: {
+          min: 0,
+          max: 1,
+        },
+        start: 1,
+        step: 0.1,
+      });
+      effectLevelSlider.noUiSlider.on('update', () => {
+        effectLevelValue.value = effectLevelSlider.noUiSlider.get();
+        imgUploadPreview.style.cssText += `filter: sepia(${effectLevelSlider.noUiSlider.get()});`;
+      });
+    }
+    if (evt.target.value === 'marvin') {
+      effectLevelSlider.noUiSlider.updateOptions({
+        range: {
+          min: 0,
+          max: 100,
+        },
+        start: 100,
+        step: 1,
+      });
+      effectLevelSlider.noUiSlider.on('update', () => {
+        effectLevelValue.value = effectLevelSlider.noUiSlider.get();
+        imgUploadPreview.style.cssText += `filter: invert(${effectLevelSlider.noUiSlider.get()}%);`;
+      });
+    }
+    if (evt.target.value === 'phobos') {
+      effectLevelSlider.noUiSlider.updateOptions({
+        range: {
+          min: 0,
+          max: 3,
+        },
+        start: 3,
+        step: 0.1,
+      });
+      effectLevelSlider.noUiSlider.on('update', () => {
+        effectLevelValue.value = effectLevelSlider.noUiSlider.get();
+        imgUploadPreview.style.cssText += `filter: blur(${effectLevelSlider.noUiSlider.get()}px);`;
+      });
+    }
+    if (evt.target.value === 'heat') {
+      effectLevelSlider.noUiSlider.updateOptions({
+        range: {
+          min: 1,
+          max: 3,
+        },
+        start: 3,
+        step: 0.1,
+      });
+      effectLevelSlider.noUiSlider.on('update', () => {
+        effectLevelValue.value = effectLevelSlider.noUiSlider.get();
+        imgUploadPreview.style.cssText += `filter: brightness(${effectLevelSlider.noUiSlider.get()});`;
+      });
+    }
 
-      if (effectRadio === 'chrome') {
-        effectLevelSlider.noUiSlider.updateOptions({
-          range: {
-            min: 0,
-            max: 1,
-          },
-          start: 1,
-          step: 0.1,
-        });
-        effectLevelSlider.noUiSlider.on('update', () => {
-          effectLevelValue.value = effectLevelSlider.noUiSlider.get();
-          imgUploadPreview.style.cssText += `filter: grayscale(${effectLevelSlider.noUiSlider.get()});`;
-        });
-      }
-      if (effectRadio === 'sepia') {
-        effectLevelSlider.noUiSlider.updateOptions({
-          range: {
-            min: 0,
-            max: 1,
-          },
-          start: 1,
-          step: 0.1,
-        });
-        effectLevelSlider.noUiSlider.on('update', () => {
-          effectLevelValue.value = effectLevelSlider.noUiSlider.get();
-          imgUploadPreview.style.cssText += `filter: sepia(${effectLevelSlider.noUiSlider.get()});`;
-        });
-      }
-      if (effectRadio === 'marvin') {
-        effectLevelSlider.noUiSlider.updateOptions({
-          range: {
-            min: 0,
-            max: 100,
-          },
-          start: 100,
-          step: 1,
-        });
-        effectLevelSlider.noUiSlider.on('update', () => {
-          effectLevelValue.value = effectLevelSlider.noUiSlider.get();
-          imgUploadPreview.style.cssText += `filter: invert(${effectLevelSlider.noUiSlider.get()}%);`;
-        });
-      }
-      if (effectRadio === 'phobos') {
-        effectLevelSlider.noUiSlider.updateOptions({
-          range: {
-            min: 0,
-            max: 3,
-          },
-          start: 3,
-          step: 0.1,
-        });
-        effectLevelSlider.noUiSlider.on('update', () => {
-          effectLevelValue.value = effectLevelSlider.noUiSlider.get();
-          imgUploadPreview.style.cssText += `filter: blur(${effectLevelSlider.noUiSlider.get()}px);`;
-        });
-      }
-      if (effectRadio === 'heat') {
-        effectLevelSlider.noUiSlider.updateOptions({
-          range: {
-            min: 1,
-            max: 3,
-          },
-          start: 3,
-          step: 0.1,
-        });
-        effectLevelSlider.noUiSlider.on('update', () => {
-          effectLevelValue.value = effectLevelSlider.noUiSlider.get();
-          imgUploadPreview.style.cssText += `filter: brightness(${effectLevelSlider.noUiSlider.get()});`;
-        });
-      }
+    if (evt.target.value !== 'none') {
+      effectLevel.classList.remove('hidden');
+      imgUploadPreview.classList.add(`effects__preview--${evt.target.value}`);
+    } else {
+      effectLevelValue.value = '';
+      imgUploadPreview.removeAttribute('class');
+      imgUploadPreview.style.removeProperty('filter');
+      effectLevelValue.value = '';
+      effectLevel.classList.add('hidden');
+    }
+  };
 
-      if (effectRadio !== 'none') {
-        effectLevel.classList.remove('hidden');
-        imgUploadPreview.classList.add(`effects__preview--${effectRadio}`);
-      } else {
-        effectLevelValue.value = '';
-        imgUploadPreview.removeAttribute('class');
-        imgUploadPreview.style.removeProperty('filter');
-        effectLevelValue.value = '';
-        effectLevel.classList.add('hidden');
-      }
-    };
-
-    effectsRadio[i].addEventListener('input', makeEffectRadio);
-  }
+  effectsRadio.addEventListener('input', makeEffectRadio);
 };
 
 const pristine = new Pristine(uploadSelectImg, {
@@ -173,9 +166,12 @@ const pristine = new Pristine(uploadSelectImg, {
   errorTextClass: 'img-upload__error-text',
 });
 
-const hashtagFoo = (value) => {
+const checkHashtag = (value) => {
   let textError = true;
-  const hashtags = value.split(' ');
+  const hashtags = value.split(/\s+/);
+  if (hashtags[0] === '') {
+    hashtags.shift();
+  }
   hashtags.forEach((element) => {
     if (!re.test(element)) {
       textError = false;
@@ -189,38 +185,42 @@ const hashtagFoo = (value) => {
   return textError;
 };
 
-const hashtagFooRep = (value) => {
-  const hashtags = value.split(' ');
-  for (let i = 0; i < hashtags.length; i++) {
-    for (let j = i + 1; j < hashtags.length; j++) {
-      if (hashtags[i].toUpperCase() === hashtags[j].toUpperCase()) {return false;}
-    }
+const checkHashtagRep = (value) => {
+  const hashtags = value.split(/\s+/);
+  if (hashtags[0] === '') {
+    hashtags.shift();
+  }
+  const hashtagUper = new Set (hashtags.map(getUpercaseDataArray));
+  if (hashtags.length !== hashtagUper.size) {
+    return false;
   }
 
   return true;
 };
 
-const hashtagFooMax = (value) => {
+const checkHashtagMax = (value) => {
   let textError = true;
-  const hashtags = value.split(' ');
-  if (hashtags.length > 5) {
+  const hashtags = value.split(/\s+/);
+  if (hashtags[0] === '') {
+    hashtags.shift();
+  }
+  if (hashtags.length > HASGHTAG_AMOUNT_MAX) {
     textError = false;
   }
 
   return textError;
 };
 
-pristine.addValidator(textHashtags, hashtagFoo, 'Неправильный формат хештега');
-pristine.addValidator(textHashtags, hashtagFooMax, 'Максимум 5 хештегов');
-pristine.addValidator(textHashtags, hashtagFooRep, 'Хештеги повторяются');
+pristine.addValidator(textHashtags, checkHashtag, 'Неправильный формат хештега');
+pristine.addValidator(textHashtags, checkHashtagMax, 'Максимум 5 хештегов');
+pristine.addValidator(textHashtags, checkHashtagRep, 'Хештеги повторяются');
 
 const onPopupEscKeydown = (evt) => {
-  if (evt.keyCode === KEY_CODE_ESCAPE && textDecription !== document.activeElement && textHashtags !== document.activeElement) {
+  if (isEscapeKey(evt) && textDecription !== document.activeElement && textHashtags !== document.activeElement) {
     imgUploadOverlay.classList.add('hidden');
     document.body.classList.remove('modal-open');
 
-    scaleControlSmaller.removeEventListener('click', makeScaleControlSmaller);
-    scaleControlBigger.removeEventListener('click', makeScaleControlBigger);
+    scaleControl.removeEventListener('click', makeScaleControl);
 
     uploadSelectImg.reset();
     pristine.reset();
@@ -244,7 +244,7 @@ const makeSuccessMessage = () => {
   const successButton = successElement.querySelector('.success__button');
 
   const onMessageEscKeydown = (evt) => {
-    if (evt.keyCode === KEY_CODE_ESCAPE) {
+    if (isEscapeKey(evt)) {
       successElement.remove();
       document.body.classList.remove('modal-open');
       document.removeEventListener('keydown', onMessageEscKeydown);
@@ -253,8 +253,7 @@ const makeSuccessMessage = () => {
 
   imgUploadOverlay.classList.add('hidden');
 
-  scaleControlSmaller.removeEventListener('click', makeScaleControlSmaller);
-  scaleControlBigger.removeEventListener('click', makeScaleControlBigger);
+  scaleControl.removeEventListener('click', makeScaleControl);
 
   uploadSelectImg.reset();
   pristine.reset();
@@ -288,13 +287,13 @@ const makeErrorMessage = (errorText) => {
   document.body.classList.add('modal-open');
 
   const onMessageEscKeydown = (evt) => {
-    if (evt.keyCode === KEY_CODE_ESCAPE) {
+    if (isEscapeKey(evt)) {
       errorElement.remove();
 
       if (errorText === 'Ошибка запроса к серверу') {
         document.body.classList.remove('modal-open');
       }
-      document.querySelector('.img-upload__overlay').classList.remove('visually-hidden');
+      uploadSelectImg.querySelector('.img-upload__overlay').classList.remove('visually-hidden');
       document.removeEventListener('keydown', onMessageEscKeydown);
     }
   };
@@ -303,7 +302,7 @@ const makeErrorMessage = (errorText) => {
   errorButton.textContent = 'Ok';
 
   if (errorText !== 'Ошибка запроса к серверу') {
-    document.querySelector('.img-upload__overlay').classList.add('visually-hidden');
+    uploadSelectImg.querySelector('.img-upload__overlay').classList.add('visually-hidden');
   }
 
 
@@ -314,7 +313,7 @@ const makeErrorMessage = (errorText) => {
     if (errorText === 'Ошибка запроса к серверу') {
       document.body.classList.remove('modal-open');
     }
-    document.querySelector('.img-upload__overlay').classList.remove('visually-hidden');
+    uploadSelectImg.querySelector('.img-upload__overlay').classList.remove('visually-hidden');
     document.removeEventListener('keydown', onMessageEscKeydown);
   });
 
@@ -325,7 +324,7 @@ const makeErrorMessage = (errorText) => {
         document.body.classList.remove('modal-open');
       }
       errorElement.remove();
-      document.querySelector('.img-upload__overlay').classList.remove('visually-hidden');
+      uploadSelectImg.querySelector('.img-upload__overlay').classList.remove('visually-hidden');
       document.removeEventListener('keydown', onMessageEscKeydown);
     }
   });
@@ -354,8 +353,7 @@ const makeUploadSelect = (evt) => {
 };
 
 const imgUploadChooser = () => {
-  const FILE_TYPES = ['jpg', 'jpeg', 'png'];
-  const effectPreview = document.querySelectorAll('.effects__preview');
+  const effectPreview = uploadSelectImg.querySelectorAll('.effects__preview');
 
   const file = imgUploadInput.files[0];
   const fileName = file.name.toLowerCase();
@@ -376,16 +374,14 @@ imgUploadInput.addEventListener('input', () => {
   makeEffects();
   imgUploadChooser();
 
-  scaleControlSmaller.addEventListener('click', makeScaleControlSmaller);
-  scaleControlBigger.addEventListener('click', makeScaleControlBigger);
-  makeScaleControlOption();
+  scaleControl.addEventListener('click', makeScaleControl);
+  makeScaleControl(scaleControlValue);
 
   uploadCancel.addEventListener('click', () => {
     imgUploadOverlay.classList.add('hidden');
     document.body.classList.remove('modal-open');
 
-    scaleControlSmaller.removeEventListener('click', makeScaleControlSmaller);
-    scaleControlBigger.removeEventListener('click', makeScaleControlBigger);
+    scaleControl.removeEventListener('click', makeScaleControl);
 
     pristine.reset();
     uploadSelectImg.removeEventListener('submit', makeUploadSelect);
