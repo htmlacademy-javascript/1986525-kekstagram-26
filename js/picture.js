@@ -1,4 +1,4 @@
-import {managePictureModal} from './util.js';
+import {managePictureModal} from './picture-modal.js';
 
 const COMMENTS_AMOUNT = 5;
 
