@@ -1,6 +1,8 @@
+import {isEscapeKey} from './util.js';
+
 const managePictureModal = (containerPicture) => {
   const onPopupEscKeydown = (evt) => {
-    if (evt.keyCode === 27) {
+    if (isEscapeKey(evt)) {
       containerPicture.classList.add('hidden');
       document.body.classList.remove('modal-open');
 

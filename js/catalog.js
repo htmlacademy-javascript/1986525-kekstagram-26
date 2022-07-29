@@ -17,7 +17,7 @@ const buttonFilterDefault = imgFilters.querySelector('#filter-default');
 let filterRandomOn = false;
 let filterCommentsOn = false;
 
-const imgFilter = (cb) => {
+const makeImgFilter = (cb) => {
   buttonFilterRandom.addEventListener('click', () => {
     filterRandomOn = true;
     filterCommentsOn = false;
@@ -49,7 +49,7 @@ const imgFilter = (cb) => {
   });
 };
 
-const randomMassiveInt = () => {
+const getRandomMassiveInt = () => {
   const random = getRandomIntInclusive(0, 2);
   return random - 1;
 };
@@ -69,7 +69,7 @@ const createSimilarPictures = (similarPictures) => {
         elm = 0;
       }
       if (filterRandomOn) {
-        elm = randomMassiveInt();
+        elm = getRandomMassiveInt();
       }
       if (filterCommentsOn) {
         if (a.comments.length < b.comments.length) {
@@ -108,7 +108,7 @@ const createSimilarPictures = (similarPictures) => {
 
 getData((similarPictures) => {
   createSimilarPictures(similarPictures);
-  imgFilter(debounce(
+  makeImgFilter(debounce(
     () => createSimilarPictures(similarPictures),
     RERENDER_DELAY));
 },
