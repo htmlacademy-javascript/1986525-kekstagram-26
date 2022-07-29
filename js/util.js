@@ -23,4 +23,6 @@ const debounce = (callback, timeoutDelay) => {
 
 const isEscapeKey = (evt) => evt.keyCode === KEY_CODE_ESCAPE;
 
-export {getRandomIntInclusive, debounce, isEscapeKey};
+const getUpercaseDataArray = (evt) => evt.toUpperCase();
+
+export {getRandomIntInclusive, debounce, isEscapeKey, getUpercaseDataArray};

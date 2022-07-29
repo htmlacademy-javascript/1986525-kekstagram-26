@@ -1,5 +1,5 @@
 import {sendData} from './api.js';
-import {isEscapeKey} from './util.js';
+import {isEscapeKey, getUpercaseDataArray} from './util.js';
 
 const CONTROL_VALUE_MAX = 100;
 const CONTROL_VALUE_MIN = 25;
@@ -9,12 +9,13 @@ const HASGHTAG_AMOUNT_MAX = 5;
 const re = /#[A-Za-zА-Яа-яЁё0-9]{1,19}$/i;
 
 const uploadSelectImg = document.querySelector('#upload-select-image');
-const imgUploadPreview = document.querySelector('.img-upload__preview').children[0];
-const effectLevelSlider = document.querySelector('.effect-level__slider');
-const scaleControlSmaller = document.querySelector('.scale__control--smaller');
-const scaleControlBigger = document.querySelector('.scale__control--bigger');
-const scaleControlValue = document.querySelector('.scale__control--value');
-const submitButton = document.querySelector('.img-upload__submit');
+const imgUploadPreview = uploadSelectImg.querySelector('.img-upload__preview').children[0];
+const effectLevelSlider = uploadSelectImg.querySelector('.effect-level__slider');
+const scaleControl = uploadSelectImg.querySelector('.img-upload__scale');
+const scaleControlSmaller = uploadSelectImg.querySelector('.scale__control--smaller');
+const scaleControlBigger = uploadSelectImg.querySelector('.scale__control--bigger');
+const scaleControlValue = uploadSelectImg.querySelector('.scale__control--value');
+const submitButton = uploadSelectImg.querySelector('.img-upload__submit');
 const imgUploadInput = uploadSelectImg.querySelector('#upload-file');
 const imgUploadOverlay = uploadSelectImg.querySelector('.img-upload__overlay');
 const uploadCancel = uploadSelectImg.querySelector('#upload-cancel');
@@ -42,35 +43,26 @@ noUiSlider.create(effectLevelSlider, {
 });
 
 let controlValue = CONTROL_VALUE_MAX;
-const makeScaleControlOption = () => {
-  controlValue = CONTROL_VALUE_MAX;
+
+const makeScaleControl = (evt) => {
+  if (evt.target === scaleControlSmaller && controlValue > CONTROL_VALUE_MIN) {
+    controlValue -= CONTROL_VALUE_MIN;
+  } else if (evt.target === scaleControlBigger && controlValue < CONTROL_VALUE_MAX) {
+    controlValue += CONTROL_VALUE_MIN;
+  } else if (evt === scaleControlValue) {
+    controlValue = CONTROL_VALUE_MAX;
+  }
   scaleControlValue.value = `${controlValue}%`;
   imgUploadPreview.style.cssText += `transform: scale(${controlValue / 100})`;
 };
 
-makeScaleControlOption();
-
-const makeScaleControlSmaller = () => {
-  if (controlValue > CONTROL_VALUE_MIN) {
-    controlValue -= CONTROL_VALUE_MIN;
-    scaleControlValue.value = `${controlValue}%`;
-    imgUploadPreview.style.cssText += `transform: scale(${controlValue / 100})`;
-  }
-};
-
-const makeScaleControlBigger = () => {
-  if (controlValue < CONTROL_VALUE_MAX) {
-    controlValue += CONTROL_VALUE_MIN;
-    scaleControlValue.value = `${controlValue}%`;
-    imgUploadPreview.style.cssText += `transform: scale(${controlValue / 100});`;
-  }
-};
+makeScaleControl(scaleControlValue);
 
 const makeEffects = () => {
-  const effectsRadioFirst = document.querySelector('.effects__radio');
-  const effectsRadio = document.querySelector('.img-upload__effects');
-  const effectLevel = document.querySelector('.effect-level');
-  const effectLevelValue = document.querySelector('.effect-level__value');
+  const effectsRadioFirst = uploadSelectImg.querySelector('.effects__radio');
+  const effectsRadio = uploadSelectImg.querySelector('.img-upload__effects');
+  const effectLevel = uploadSelectImg.querySelector('.effect-level');
+  const effectLevelValue = uploadSelectImg.querySelector('.effect-level__value');
 
   effectLevelValue.value = '';
   effectLevel.classList.add('hidden');
@@ -196,10 +188,9 @@ const checkHashtagRep = (value) => {
   if (hashtags[0] === '') {
     hashtags.shift();
   }
-  for (let i = 0; i < hashtags.length; i++) {
-    for (let j = i + 1; j < hashtags.length; j++) {
-      if (hashtags[i].toUpperCase() === hashtags[j].toUpperCase()) {return false;}
-    }
+  const hashtagUper = new Set (hashtags.map(getUpercaseDataArray));
+  if (hashtags.length !== hashtagUper.size) {
+    return false;
   }
 
   return true;
@@ -227,8 +218,7 @@ const onPopupEscKeydown = (evt) => {
     imgUploadOverlay.classList.add('hidden');
     document.body.classList.remove('modal-open');
 
-    scaleControlSmaller.removeEventListener('click', makeScaleControlSmaller);
-    scaleControlBigger.removeEventListener('click', makeScaleControlBigger);
+    scaleControl.removeEventListener('click', makeScaleControl);
 
     uploadSelectImg.reset();
     pristine.reset();
@@ -261,8 +251,7 @@ const makeSuccessMessage = () => {
 
   imgUploadOverlay.classList.add('hidden');
 
-  scaleControlSmaller.removeEventListener('click', makeScaleControlSmaller);
-  scaleControlBigger.removeEventListener('click', makeScaleControlBigger);
+  scaleControl.removeEventListener('click', makeScaleControl);
 
   uploadSelectImg.reset();
   pristine.reset();
@@ -302,7 +291,7 @@ const makeErrorMessage = (errorText) => {
       if (errorText === 'Ошибка запроса к серверу') {
         document.body.classList.remove('modal-open');
       }
-      document.querySelector('.img-upload__overlay').classList.remove('visually-hidden');
+      uploadSelectImg.querySelector('.img-upload__overlay').classList.remove('visually-hidden');
       document.removeEventListener('keydown', onMessageEscKeydown);
     }
   };
@@ -311,7 +300,7 @@ const makeErrorMessage = (errorText) => {
   errorButton.textContent = 'Ok';
 
   if (errorText !== 'Ошибка запроса к серверу') {
-    document.querySelector('.img-upload__overlay').classList.add('visually-hidden');
+    uploadSelectImg.querySelector('.img-upload__overlay').classList.add('visually-hidden');
   }
 
 
@@ -322,7 +311,7 @@ const makeErrorMessage = (errorText) => {
     if (errorText === 'Ошибка запроса к серверу') {
       document.body.classList.remove('modal-open');
     }
-    document.querySelector('.img-upload__overlay').classList.remove('visually-hidden');
+    uploadSelectImg.querySelector('.img-upload__overlay').classList.remove('visually-hidden');
     document.removeEventListener('keydown', onMessageEscKeydown);
   });
 
@@ -333,7 +322,7 @@ const makeErrorMessage = (errorText) => {
         document.body.classList.remove('modal-open');
       }
       errorElement.remove();
-      document.querySelector('.img-upload__overlay').classList.remove('visually-hidden');
+      uploadSelectImg.querySelector('.img-upload__overlay').classList.remove('visually-hidden');
       document.removeEventListener('keydown', onMessageEscKeydown);
     }
   });
@@ -362,7 +351,7 @@ const makeUploadSelect = (evt) => {
 };
 
 const imgUploadChooser = () => {
-  const effectPreview = document.querySelectorAll('.effects__preview');
+  const effectPreview = uploadSelectImg.querySelectorAll('.effects__preview');
 
   const file = imgUploadInput.files[0];
   const fileName = file.name.toLowerCase();
@@ -383,16 +372,14 @@ imgUploadInput.addEventListener('input', () => {
   makeEffects();
   imgUploadChooser();
 
-  scaleControlSmaller.addEventListener('click', makeScaleControlSmaller);
-  scaleControlBigger.addEventListener('click', makeScaleControlBigger);
-  makeScaleControlOption();
+  scaleControl.addEventListener('click', makeScaleControl);
+  makeScaleControl(scaleControlValue);
 
   uploadCancel.addEventListener('click', () => {
     imgUploadOverlay.classList.add('hidden');
     document.body.classList.remove('modal-open');
 
-    scaleControlSmaller.removeEventListener('click', makeScaleControlSmaller);
-    scaleControlBigger.removeEventListener('click', makeScaleControlBigger);
+    scaleControl.removeEventListener('click', makeScaleControl);
 
     pristine.reset();
     uploadSelectImg.removeEventListener('submit', makeUploadSelect);
