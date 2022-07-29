@@ -1,3 +1,5 @@
+const KEY_CODE_ESCAPE = 27;
+
 // Источник: https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/Math/random
 const getRandomIntInclusive = (min, max) => {
   let random;
@@ -19,4 +21,6 @@ const debounce = (callback, timeoutDelay) => {
   };
 };
 
-export {getRandomIntInclusive, debounce};
+const isEscapeKey = (evt) => evt.keyCode === KEY_CODE_ESCAPE;
+
+export {getRandomIntInclusive, debounce, isEscapeKey};

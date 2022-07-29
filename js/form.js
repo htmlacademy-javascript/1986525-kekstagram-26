@@ -1,8 +1,8 @@
 import {sendData} from './api.js';
+import {isEscapeKey} from './util.js';
 
 const CONTROL_VALUE_MAX = 100;
 const CONTROL_VALUE_MIN = 25;
-const KEY_CODE_ESCAPE = 27;
 const FILE_TYPES = ['jpg', 'jpeg', 'png'];
 
 const re = /#[A-Za-zА-Яа-яЁё0-9]{1,19}$/i;
@@ -225,7 +225,7 @@ pristine.addValidator(textHashtags, checkHashtagMax, 'Максимум 5 хеш�
 pristine.addValidator(textHashtags, checkHashtagRep, 'Хештеги повторяются');
 
 const onPopupEscKeydown = (evt) => {
-  if (evt.keyCode === KEY_CODE_ESCAPE && textDecription !== document.activeElement && textHashtags !== document.activeElement) {
+  if (isEscapeKey(evt) && textDecription !== document.activeElement && textHashtags !== document.activeElement) {
     imgUploadOverlay.classList.add('hidden');
     document.body.classList.remove('modal-open');
 
@@ -254,7 +254,7 @@ const makeSuccessMessage = () => {
   const successButton = successElement.querySelector('.success__button');
 
   const onMessageEscKeydown = (evt) => {
-    if (evt.keyCode === KEY_CODE_ESCAPE) {
+    if (isEscapeKey(evt)) {
       successElement.remove();
       document.body.classList.remove('modal-open');
       document.removeEventListener('keydown', onMessageEscKeydown);
@@ -298,7 +298,7 @@ const makeErrorMessage = (errorText) => {
   document.body.classList.add('modal-open');
 
   const onMessageEscKeydown = (evt) => {
-    if (evt.keyCode === KEY_CODE_ESCAPE) {
+    if (isEscapeKey(evt)) {
       errorElement.remove();
 
       if (errorText === 'Ошибка запроса к серверу') {
