@@ -3,6 +3,7 @@ import {sendData} from './api.js';
 const CONTROL_VALUE_MAX = 100;
 const CONTROL_VALUE_MIN = 25;
 const KEY_CODE_ESCAPE = 27;
+const FILE_TYPES = ['jpg', 'jpeg', 'png'];
 
 const re = /#[A-Za-zА-Яа-яЁё0-9]{1,19}$/i;
 
@@ -173,9 +174,12 @@ const pristine = new Pristine(uploadSelectImg, {
   errorTextClass: 'img-upload__error-text',
 });
 
-const hashtagFoo = (value) => {
+const checkHashtag = (value) => {
   let textError = true;
-  const hashtags = value.split(' ');
+  const hashtags = value.split(/\s+/);
+  if (hashtags[0] === '') {
+    hashtags.shift();
+  }
   hashtags.forEach((element) => {
     if (!re.test(element)) {
       textError = false;
@@ -189,8 +193,11 @@ const hashtagFoo = (value) => {
   return textError;
 };
 
-const hashtagFooRep = (value) => {
-  const hashtags = value.split(' ');
+const checkHashtagRep = (value) => {
+  const hashtags = value.split(/\s+/);
+  if (hashtags[0] === '') {
+    hashtags.shift();
+  }
   for (let i = 0; i < hashtags.length; i++) {
     for (let j = i + 1; j < hashtags.length; j++) {
       if (hashtags[i].toUpperCase() === hashtags[j].toUpperCase()) {return false;}
@@ -200,9 +207,12 @@ const hashtagFooRep = (value) => {
   return true;
 };
 
-const hashtagFooMax = (value) => {
+const checkHashtagMax = (value) => {
   let textError = true;
-  const hashtags = value.split(' ');
+  const hashtags = value.split(/\s+/);
+  if (hashtags[0] === '') {
+    hashtags.shift();
+  }
   if (hashtags.length > 5) {
     textError = false;
   }
@@ -210,9 +220,9 @@ const hashtagFooMax = (value) => {
   return textError;
 };
 
-pristine.addValidator(textHashtags, hashtagFoo, 'Неправильный формат хештега');
-pristine.addValidator(textHashtags, hashtagFooMax, 'Максимум 5 хештегов');
-pristine.addValidator(textHashtags, hashtagFooRep, 'Хештеги повторяются');
+pristine.addValidator(textHashtags, checkHashtag, 'Неправильный формат хештега');
+pristine.addValidator(textHashtags, checkHashtagMax, 'Максимум 5 хештегов');
+pristine.addValidator(textHashtags, checkHashtagRep, 'Хештеги повторяются');
 
 const onPopupEscKeydown = (evt) => {
   if (evt.keyCode === KEY_CODE_ESCAPE && textDecription !== document.activeElement && textHashtags !== document.activeElement) {
@@ -354,7 +364,6 @@ const makeUploadSelect = (evt) => {
 };
 
 const imgUploadChooser = () => {
-  const FILE_TYPES = ['jpg', 'jpeg', 'png'];
   const effectPreview = document.querySelectorAll('.effects__preview');
 
   const file = imgUploadInput.files[0];
